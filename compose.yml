@@ -1,0 +1,101 @@
+services:
+
+  homeserver:
+    image: forgejo.ellis.link/continuwuation/continuwuity:v0.5-maxperf
+    restart: unless-stopped
+    command: /sbin/conduwuit
+    env_file:
+      - .env
+    environment:
+      UID: ${UID_HOMESERVER:-0}
+      GID: ${GID_HOMESERVER:-0}
+      CONTINUWUITY_ADDRESS: 0.0.0.0
+      CONTINUWUITY_PORT: 8008
+      CONTINUWUITY_CONFIG: /etc/continuwuity.toml
+      CONTINUWUITY_REGISTRATION_TOKEN_FILE: /etc/continuwuity-registration-tokens.txt
+      CONTINUWUITY_DATABASE_PATH: /var/lib/continuwuity
+      CONTINUWUITY_DATABASE_BACKUP_PATH: /opt/continuwuity-db-backups
+    volumes:
+      - db:/var/lib/continuwuity:rw
+      - ./db-backups:/opt/continuwuity-db-backups:rw
+      - ./continuwuity.toml:/etc/continuwuity.toml:ro
+      - ./registration-tokens.txt:/etc/continuwuity-registration-tokens.txt:ro
+      # https://continuwuity.org/deploying/docker.html#choose-your-reverse-proxy
+      # https://quad9.net/service/service-addresses-and-features/
+      - ./resolv.conf:/etc/resolv.conf:ro
+    networks:
+      default:
+      proxy-www:
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.continuwuity.loadbalancer.server.port=8008
+      - traefik.http.services.continuwuity.loadbalancer.server.scheme=http
+      - traefik.http.routers.continuwuity.rule=HostRegexp(`^matrix\.[a-z0-9.-]+`)
+      - traefik.http.routers.continuwuity.entryPoints=http
+      - traefik.http.routers.continuwuity.middlewares=redirect-ssl,compression
+      - traefik.http.routers.continuwuity-ssl.rule=HostRegexp(`^matrix\.[a-z0-9.-]+`)
+      - traefik.http.routers.continuwuity-ssl.entryPoints=https
+      - traefik.http.routers.continuwuity-ssl.tls=true
+
+  turn:
+    image: docker.io/coturn/coturn
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./coturn.conf:/etc/coturn/turnserver.conf:ro
+      - coturn:/var/lib/coturn:rw
+
+  livekit-jwt:
+    image: ghcr.io/element-hq/lk-jwt-service:latest
+    restart: unless-stopped
+    ports:
+      - 8081:8081/tcp
+    env_file:
+      - .env
+    environment:
+      - LIVEKIT_JWT_BIND=:8081
+      - LIVEKIT_FULL_ACCESS_HOMESERVERS=${CONTINUWUITY_SERVER_NAME}
+      - LIVEKIT_URL=${LIVEKIT_URL}
+      - LIVEKIT_KEY=${LIVEKIT_KEY}
+      - LIVEKIT_SECRET=${LIVEKIT_SECRET}
+    networks:
+      default:
+      proxy-www:
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.livekit-jwt.loadbalancer.server.port=8081
+      - traefik.http.services.livekit-jwt.loadbalancer.server.scheme=http
+      - traefik.http.routers.livekit-jwt-ssl.entryPoints=https
+      - traefik.http.routers.livekit-jwt-ssl.tls=true
+      - traefik.http.routers.livekit-jwt-ssl.rule=HostRegexp(`^livekit\.[a-z0-9.-]+`) && (PathPrefix(`/sfu/get`) || PathPrefix(`/healthz`) || PathPrefix(`/get_token`))
+
+  livekit:
+    image: docker.io/livekit/livekit-server:latest
+    command: --config /etc/livekit.yaml
+    restart: unless-stopped
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    networks:
+      default:
+      proxy-www:
+    ports:
+     - 127.0.0.1:7880:7880/tcp
+     - 7881:7881/tcp
+     - 7882:7882/udp
+     - 50100-50200:50100-50200/udp
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.livekit.loadbalancer.server.port=7880
+      - traefik.http.services.livekit.loadbalancer.server.scheme=http
+      - traefik.http.routers.livekit-ssl.entryPoints=https
+      - traefik.http.routers.livekit-ssl.tls=true
+      - traefik.http.routers.livekit-ssl.rule=HostRegexp(`^livekit\.[a-z0-9.-]+`)
+
+volumes:
+  db:
+  coturn:
+
+networks:
+  default:
+  proxy-www:
+    external: true
