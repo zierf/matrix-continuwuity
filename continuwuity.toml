@@ -12,7 +12,6 @@ allow_guest_registration = false
 log_guest_registrations = true
 suspend_on_register = true
 yes_i_am_very_very_sure_i_want_an_open_registration_server_prone_to_abuse = false
-registration_token_file = "/etc/continuwuity-registration-tokens.txt"
 
 allow_public_room_directory_over_federation = true
 lockdown_public_room_directory = false

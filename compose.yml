@@ -12,14 +12,12 @@ services:
       CONTINUWUITY_ADDRESS: 0.0.0.0
       CONTINUWUITY_PORT: 8008
       CONTINUWUITY_CONFIG: /etc/continuwuity.toml
-      CONTINUWUITY_REGISTRATION_TOKEN_FILE: /etc/continuwuity-registration-tokens.txt
       CONTINUWUITY_DATABASE_PATH: /var/lib/continuwuity
       CONTINUWUITY_DATABASE_BACKUP_PATH: /opt/continuwuity-db-backups
     volumes:
       - db:/var/lib/continuwuity:rw
       - ./db-backups:/opt/continuwuity-db-backups:rw
       - ./continuwuity.toml:/etc/continuwuity.toml:ro
-      - ./registration-tokens.txt:/etc/continuwuity-registration-tokens.txt:ro
       # https://continuwuity.org/deploying/docker.html#choose-your-reverse-proxy
       # https://quad9.net/service/service-addresses-and-features/
       - ./resolv.conf:/etc/resolv.conf:ro

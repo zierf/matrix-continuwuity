@@ -1,6 +1,4 @@
 .env
 
-/registration-tokens.txt
-
 /coturn.conf
 /livekit.yaml
