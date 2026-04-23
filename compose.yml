@@ -67,7 +67,7 @@ services:
       - traefik.http.services.livekit-jwt.loadbalancer.server.scheme=http
       - traefik.http.routers.livekit-jwt-ssl.entryPoints=https
       - traefik.http.routers.livekit-jwt-ssl.tls=true
-      - traefik.http.routers.livekit-jwt-ssl.rule=HostRegexp(`^livekit\.[a-z0-9.-]+`) && (PathPrefix(`/sfu/get`) || PathPrefix(`/healthz`) || PathPrefix(`/get_token`))
+      - traefik.http.routers.livekit-jwt-ssl.rule=HostRegexp(`^rtc\.[a-z0-9.-]+`) && (PathPrefix(`/sfu/get`) || PathPrefix(`/healthz`) || PathPrefix(`/get_token`))
 
   livekit:
     image: docker.io/livekit/livekit-server:latest
@@ -91,7 +91,7 @@ services:
       - traefik.http.services.livekit.loadbalancer.server.scheme=http
       - traefik.http.routers.livekit-ssl.entryPoints=https
       - traefik.http.routers.livekit-ssl.tls=true
-      - traefik.http.routers.livekit-ssl.rule=HostRegexp(`^livekit\.[a-z0-9.-]+`)
+      - traefik.http.routers.livekit-ssl.rule=HostRegexp(`^rtc\.[a-z0-9.-]+`)
 
 volumes:
   db:
