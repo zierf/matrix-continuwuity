@@ -80,7 +80,7 @@ services:
      - 127.0.0.1:7880:7880/tcp
      - 7881:7881/tcp
      - 7882:7882/udp
-     - 50100-50200:50100-50200/udp
+     - 50100-50149:50100-50149/udp
     labels:
       - traefik.enable=true
       - traefik.http.services.livekit.loadbalancer.server.port=7880
