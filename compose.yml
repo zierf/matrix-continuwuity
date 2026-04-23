@@ -48,10 +48,6 @@ services:
     restart: unless-stopped
     depends_on:
       - livekit
-    ports:
-      - 8081:8081/tcp
-    env_file:
-      - .env
     environment:
       - LIVEKIT_JWT_BIND=:8081
       - LIVEKIT_FULL_ACCESS_HOMESERVERS=${CONTINUWUITY_SERVER_NAME}
