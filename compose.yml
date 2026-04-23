@@ -48,6 +48,8 @@ services:
   livekit-jwt:
     image: ghcr.io/element-hq/lk-jwt-service:latest
     restart: unless-stopped
+    depends_on:
+      - livekit
     ports:
       - 8081:8081/tcp
     env_file:
@@ -73,6 +75,8 @@ services:
     image: docker.io/livekit/livekit-server:latest
     command: --config /etc/livekit.yaml
     restart: unless-stopped
+    depends_on:
+      - turn
     volumes:
       - ./livekit.yaml:/etc/livekit.yaml:ro
     networks:
