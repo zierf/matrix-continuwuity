@@ -24,10 +24,10 @@ query_trusted_key_servers_first = false
 query_trusted_key_servers_first_on_join = true
 only_query_trusted_key_servers = false
 
-admins_from_room = false
+admins_from_room = true
 admin_room_notices = true
 admin_escape_commands = true
-#admin_execute = []
+#admin_execute = [ "users make-user-admin <USERNAME>", server admin-notice <Info for Admin Room>" ]
 #admin_execute_errors_ignore = true
 
 allow_room_creation = true
